@@ -31,6 +31,7 @@ client.interceptors.response.use(
     async (error) => {
         if (error.response && error.response.status === 401) {
             console.log("⚠️ 401 UNAUTHORIZED en:", error.config.url);
+            console.log("⚠️ DETALLES 401:", JSON.stringify(error.response.data));
             if (unauthorizedCallback) {
                 unauthorizedCallback();
             }
