@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getInvoices } from '../../api/invoices';
 
@@ -14,6 +14,10 @@ const InvoicesListScreen = ({ navigation }) => {
             setInvoices(data);
         } catch (error) {
             console.error(error);
+            Alert.alert(
+                "Error Load Invoices",
+                JSON.stringify(error.response?.data || error.message)
+            );
         } finally {
             setLoading(false);
             setRefreshing(false);
