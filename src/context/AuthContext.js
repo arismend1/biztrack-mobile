@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import client from '../api/client';
+import client, { setUnauthorizedCallback } from '../api/client';
 import { ENDPOINTS } from '../constants/api';
 
 export const AuthContext = createContext();
@@ -77,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         isLoggedIn();
         // Register the logout callback for 401s
-        const { setUnauthorizedCallback } = require('../api/client');
         setUnauthorizedCallback(logout);
     }, []);
 

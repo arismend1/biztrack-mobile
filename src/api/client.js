@@ -30,6 +30,7 @@ client.interceptors.response.use(
     (response) => response,
     async (error) => {
         if (error.response && error.response.status === 401) {
+            // Only trigger callback if it exists
             if (unauthorizedCallback) {
                 unauthorizedCallback();
             }

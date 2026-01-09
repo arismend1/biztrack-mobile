@@ -7,17 +7,30 @@ const RegisterScreen = ({ navigation }) => {
     const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     const { register, isLoading } = useContext(AuthContext);
 
     const handleRegister = async () => {
-        if (!name || !email || !password || !companyName) {
+        if (!name || !email || !password || !companyName || !confirmPassword) {
             Alert.alert('Error', 'Please fill in all fields');
             return;
         }
 
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match');
+            return;
+        }
+
         try {
-            await register(name, email, password, companyName);
+            const response = await register(name, email, password, companyName);
+            if (response && response.message) {
+                Alert.alert(
+                    'Verification Required',
+                    'We sent an email to ' + email + '. Please verify your account to login.',
+                    [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+                );
+            }
         } catch (e) {
             Alert.alert('Registration Failed', e.response?.data?.error || 'Something went wrong');
         }
@@ -25,41 +38,71 @@ const RegisterScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollWrapper}>
-                <View style={styles.wrapper}>
+            <ScrollView contentContainerStyle={styles.scrollWrapper} showsVerticalScrollIndicator={false}>
+                <View style={styles.headerContainer}>
                     <Text style={styles.title}>Create Account</Text>
-                    <Text style={styles.subtitle}>Start tracking your business</Text>
+                    <Text style={styles.subtitle}>Join thousands of professionals</Text>
+                </View>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Full Name"
-                        value={name}
-                        onChangeText={text => setName(text)}
-                    />
+                <View style={styles.formContainer}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Full Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="John Doe"
+                            placeholderTextColor="#999"
+                            value={name}
+                            onChangeText={setName}
+                        />
+                    </View>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Company Name"
-                        value={companyName}
-                        onChangeText={text => setCompanyName(text)}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Company Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Acme Construction Inc."
+                            placeholderTextColor="#999"
+                            value={companyName}
+                            onChangeText={setCompanyName}
+                        />
+                    </View>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={text => setEmail(text)}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Email Address</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="name@company.com"
+                            placeholderTextColor="#999"
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+                    </View>
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={text => setPassword(text)}
-                        secureTextEntry
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Create a strong password"
+                            placeholderTextColor="#999"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Confirm Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Re-enter your password"
+                            placeholderTextColor="#999"
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            secureTextEntry
+                        />
+                    </View>
 
                     <TouchableOpacity
                         style={styles.button}
@@ -69,14 +112,14 @@ const RegisterScreen = ({ navigation }) => {
                         {isLoading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Sign Up</Text>
+                            <Text style={styles.buttonText}>Start Free Trial</Text>
                         )}
                     </TouchableOpacity>
 
-                    <View style={styles.row}>
-                        <Text>Already have an account? </Text>
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>Already have an account? </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                            <Text style={styles.link}>Login</Text>
+                            <Text style={styles.link}>Sign In</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -88,58 +131,86 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#f8f9fa',
     },
     scrollWrapper: {
         flexGrow: 1,
+        padding: 24,
         justifyContent: 'center',
-        paddingVertical: 20,
     },
-    wrapper: {
-        paddingHorizontal: 20,
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: 30,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 10,
-        textAlign: 'center',
+        color: '#1a1a1a',
+        marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
         color: '#666',
-        marginBottom: 30,
-        textAlign: 'center',
+    },
+    formContainer: {
+        backgroundColor: '#fff',
+        padding: 24,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 15,
+        elevation: 2,
+    },
+    inputContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 8,
     },
     input: {
-        marginBottom: 15,
+        backgroundColor: '#f5f7fa',
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        paddingHorizontal: 15,
+        borderColor: '#e1e4e8',
+        borderRadius: 12,
+        paddingHorizontal: 16,
         paddingVertical: 12,
         fontSize: 16,
+        color: '#333',
     },
     button: {
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
-        paddingVertical: 15,
+        backgroundColor: '#007AFF', // BizTrack Blue
+        borderRadius: 12,
+        paddingVertical: 16,
         alignItems: 'center',
-        marginTop: 10,
+        marginTop: 8,
+        shadowColor: '#007AFF',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
     },
-    row: {
+    footer: {
         flexDirection: 'row',
-        marginTop: 20,
+        marginTop: 24,
         justifyContent: 'center',
+    },
+    footerText: {
+        color: '#666',
+        fontSize: 14,
     },
     link: {
         color: '#007AFF',
         fontWeight: 'bold',
+        fontSize: 14,
     },
 });
 
