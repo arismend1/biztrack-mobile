@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from 'react-native';
 import { getInvoiceById, registerPayment } from '../../api/invoices';
+import { getCompany } from '../../api/company';
+import { generateInvoicePDF } from '../../utils/pdfGenerator';
 
 const InvoiceDetailScreen = ({ navigation, route }) => {
     const { id } = route.params;
@@ -22,6 +24,16 @@ const InvoiceDetailScreen = ({ navigation, route }) => {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePrint = async () => {
+        try {
+            // Don't set full loading state to avoid flickering, just show alert if needed or activity indicator
+            const company = await getCompany();
+            await generateInvoicePDF(invoice, company);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to generate PDF');
         }
     };
 
@@ -48,7 +60,9 @@ const InvoiceDetailScreen = ({ navigation, route }) => {
                     <Text style={styles.backText}>Back</Text>
                 </TouchableOpacity>
                 <Text style={styles.title}>Invoice #{invoice.number}</Text>
-                <View style={{ width: 50 }} />
+                <TouchableOpacity onPress={handlePrint} style={styles.backBtn}>
+                    <Text style={styles.backText}>PDF</Text>
+                </TouchableOpacity>
             </View>
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.card}>

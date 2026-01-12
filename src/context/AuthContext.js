@@ -35,11 +35,13 @@ export const AuthProvider = ({ children }) => {
             const response = await client.post(ENDPOINTS.REGISTER, { name, email, password, companyName });
             const { token, user } = response.data;
 
-            setUserToken(token);
-            setUserInfo(user);
+            if (token && user) {
+                setUserToken(token);
+                setUserInfo(user);
 
-            await SecureStore.setItemAsync('userToken', token);
-            await SecureStore.setItemAsync('userInfo', JSON.stringify(user));
+                await SecureStore.setItemAsync('userToken', token);
+                await SecureStore.setItemAsync('userInfo', JSON.stringify(user));
+            }
         } catch (error) {
             console.log('Register error', error);
             throw error;
